@@ -11,7 +11,8 @@ local Storage = game:GetService("ServerStorage")
 
 -- Configuration
 local C = {
-	RenderDistance = 50
+	RenderDistance	= 50,	-- Stud radius (xy, where x and y are both this number)
+	Delay			= 0.1,	-- Delay between player updates
 }
 
 -- Initialization
@@ -79,9 +80,19 @@ local Xe = game.Workspace:FindFirstChild("Xenon")
 if not Xe then return XeL("No 'Xenon' folder to stream from.") end
 for _, p in pairs(Xe:GetDescendants()) do registerPart(p) end
 
--- Start watching movement
+-- Handle leaving
 local lastPos, lastParts = {}, {}
-while task.wait(.1) do
+Players.PlayerRemoving:Connect(function(p)
+	local lp = lastParts[p.UserId]
+	if lp == nil then return end  -- They must of NOPED out insanely fast for this to be nil
+
+	-- Clear all signs that they ever existed
+	lp:Destroy()
+	lastPos[p.UserId] = nil
+end)
+
+-- Start watching movement
+while task.wait(C.Delay) do
 	local up = {}
 	for _, p in pairs(Players:GetPlayers()) do
 		local c = p.Character

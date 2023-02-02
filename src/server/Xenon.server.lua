@@ -144,7 +144,13 @@ while task.wait(C.Delay) do
 		for _, _p in pairs(lastParts[pl]:GetDescendants()) do
 			if _p:IsA("Folder") then continue end
 			if _p:GetAttribute("_XN") == 1 then _p:SetAttribute("_XN", 0)
-			else _p:Destroy() end
+			else
+				if (#_p.Parent:GetChildren() - 1) == 0 then
+					_p.Parent:Destroy()  -- Remove empty folders
+					continue
+				end
+				_p:Destroy()
+			end
 		end
 	end
 end

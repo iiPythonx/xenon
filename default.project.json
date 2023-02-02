@@ -4,7 +4,9 @@
     "$className": "DataModel",
 
     "ServerScriptService": {
-      "$path": "src/server"
+      "Xenon": {
+        "$path": "src/server"
+      }
     },
 
     "Workspace": {

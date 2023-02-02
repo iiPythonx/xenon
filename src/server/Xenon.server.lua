@@ -13,7 +13,8 @@ local Storage = game:GetService("ServerStorage")
 local C = {
 	RenderDistance	= 50,	-- Stud radius (xy, where x and y are both this number)
 	Delay			= 0.1,	-- Delay between player updates
-	WalkTrigger		= 10	-- Magnitude difference to trigger update
+	WalkTrigger		= 10,	-- Magnitude difference to trigger update
+	IgnoreLocked	= true,	-- Ignore locked parts (baseplates, etc.)
 }
 
 -- Initialization
@@ -80,7 +81,10 @@ end
 local Xe = game.Workspace:FindFirstChild("Xenon")
 if not Xe then return XeL("No 'Xenon' folder to stream from.") end
 for _, p in pairs(Xe:GetDescendants()) do
-	if p:IsA("BasePart") then registerPart(p) end
+	if p:IsA("BasePart") then
+		if p.Locked and C.IgnoreLocked then continue end
+		registerPart(p)
+	end
 end
 
 -- Handle leaving

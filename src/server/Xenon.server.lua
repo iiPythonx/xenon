@@ -14,18 +14,20 @@ local C = {
 	RenderDistance = 50
 }
 
--- Version info
-local V = Instance.new("StringValue")
-V.Value = "1.0.9"
-V.Name = "Version"
-V.Parent = script
-
-print("[Xe] Xenon version " .. V.Value .. " loaded.")
-
 -- Initialization
 local Parts = Instance.new("Folder")
 Parts.Name = "XenonParts"
 Parts.Parent = Storage
+
+local function XeL(m) print("[Xe]", m) end
+
+-- Version info
+local V = Instance.new("StringValue")
+V.Value = "1.1.0"
+V.Name = "Version"
+V.Parent = script
+
+XeL("Xenon version " .. V.Value .. " loaded.")
 
 -- Position handlers
 local function createPartStructure(x: number, y: number, z: number, p: Instance)
@@ -72,8 +74,10 @@ local function findPartsInRange(v1: Vector3, v2: Vector3, p: Instance)
 	return pts
 end
 
--- Begin Xenonifying parts
-for _, p in pairs(game.Workspace.Xenon:GetDescendants()) do registerPart(p) end
+-- Begin registering parts
+local Xe = game.Workspace:FindFirstChild("Xenon")
+if not Xe then return XeL("No 'Xenon' folder to stream from.") end
+for _, p in pairs(Xe:GetDescendants()) do registerPart(p) end
 
 -- Start watching movement
 local lastPos, lastParts = {}, {}

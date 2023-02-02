@@ -13,6 +13,7 @@ local Storage = game:GetService("ServerStorage")
 local C = {
 	RenderDistance	= 50,	-- Stud radius (xy, where x and y are both this number)
 	Delay			= 0.1,	-- Delay between player updates
+	WalkTrigger		= 10	-- Magnitude difference to trigger update
 }
 
 -- Initialization
@@ -24,7 +25,7 @@ local function XeL(m) print("[Xe]", m) end
 
 -- Version info
 local V = Instance.new("StringValue")
-V.Value = "1.1.0"
+V.Value = "1.1.1"
 V.Name = "Version"
 V.Parent = script
 
@@ -91,6 +92,17 @@ Players.PlayerRemoving:Connect(function(p)
 	lastPos[p.UserId] = nil
 end)
 
+-- Handle respawning
+Players.PlayerAdded:Connect(function(p)
+	p.CharacterAdded:Connect(function(c)	
+		c:WaitForChild("Humanoid").Died:Connect(function()
+
+			-- Force update
+			lastPos[p.UserId] = Vector3.new(0, lastPos[p.UserId].Y + (C.WalkTrigger + 1), 0)
+		end)
+	end)
+end)
+
 -- Start watching movement
 while task.wait(C.Delay) do
 	local up = {}
@@ -99,7 +111,7 @@ while task.wait(C.Delay) do
 		if c == nil then continue end
 		local h = c:FindFirstChild("Head")
 		if h == nil then continue end
-		
+
 		-- Position tracking
 		local ps = h.Position
 		if not lastPos[p.UserId] then
@@ -108,7 +120,7 @@ while task.wait(C.Delay) do
 			f.Name = p.Name
 			f.Parent = game.Workspace.Xenon
 			lastParts[p.UserId] = f
-		elseif (lastPos[p.UserId] - ps).magnitude < 10 then continue end
+		elseif (lastPos[p.UserId] - ps).magnitude < C.WalkTrigger then continue end
 		
 		-- Create range
 		local v1 = Vector3.new(

@@ -79,7 +79,9 @@ end
 -- Begin registering parts
 local Xe = game.Workspace:FindFirstChild("Xenon")
 if not Xe then return XeL("No 'Xenon' folder to stream from.") end
-for _, p in pairs(Xe:GetDescendants()) do registerPart(p) end
+for _, p in pairs(Xe:GetDescendants()) do
+	if p:IsA("BasePart") then registerPart(p) end
+end
 
 -- Handle leaving
 local lastPos, lastParts = {}, {}
@@ -154,7 +156,7 @@ while task.wait(C.Delay) do
 	-- Remove old parts (reuse parts)
 	for _, pl in pairs(up) do
 		for _, _p in pairs(lastParts[pl]:GetDescendants()) do
-			if _p:IsA("Folder") then continue end
+			if not _p:IsA("BasePart") then continue end
 			if _p:GetAttribute("_XN") == 1 then _p:SetAttribute("_XN", 0)
 			else
 				if (#_p.Parent:GetChildren() - 1) == 0 then

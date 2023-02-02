@@ -16,7 +16,7 @@ local C = {
 
 -- Version info
 local V = Instance.new("StringValue")
-V.Value = "1.0.8"
+V.Value = "1.0.9"
 V.Name = "Version"
 V.Parent = script
 
@@ -78,6 +78,7 @@ for _, p in pairs(game.Workspace.Xenon:GetDescendants()) do registerPart(p) end
 -- Start watching movement
 local lastPos, lastParts = {}, {}
 while task.wait(.1) do
+	local up = {}
 	for _, p in pairs(Players:GetPlayers()) do
 		local c = p.Character
 		if c == nil then continue end
@@ -92,7 +93,7 @@ while task.wait(.1) do
 			f.Name = p.Name
 			f.Parent = game.Workspace.Xenon
 			lastParts[p.UserId] = f
-		elseif (lastPos[p.UserId] - ps).magnitude < 2 then continue end
+		elseif (lastPos[p.UserId] - ps).magnitude < 10 then continue end
 		
 		-- Create range
 		local v1 = Vector3.new(
@@ -120,13 +121,15 @@ while task.wait(.1) do
 			pc:SetAttribute("_XN", 1)
 			pc.Parent = lastParts[p.UserId][px][py][pz]
 		end
-		
+		table.insert(up, p.UserId)
 	end
 
 	-- Remove old parts (reuse parts)
-	for _, _p in pairs(game.Workspace.Xenon:GetDescendants()) do
-		if _p:IsA("Folder") then continue end
-		if _p:GetAttribute("_XN") == 1 then _p:SetAttribute("_XN", 0)
-		else _p:Destroy() end
+	for _, pl in pairs(up) do
+		for _, _p in pairs(lastParts[pl]:GetDescendants()) do
+			if _p:IsA("Folder") then continue end
+			if _p:GetAttribute("_XN") == 1 then _p:SetAttribute("_XN", 0)
+			else _p:Destroy() end
+		end
 	end
 end

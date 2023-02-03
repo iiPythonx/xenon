@@ -15,7 +15,23 @@ local C = {
 	Delay			= 0.1,	-- Delay between player updates
 	WalkTrigger		= 10,	-- Magnitude difference to trigger update
 	IgnoreLocked	= true,	-- Ignore locked parts (baseplates, etc.)
+	ExternalConfig	= true, -- Allow config changing via Value objects
 }
+if C.ExternalConfig then
+	local CfgObj = Instance.new("Configuration", script)
+	CfgObj.ChildAdded:Connect(function(c)
+		if c:IsA("IntValue") or c:IsA("BoolValue") then
+			local function upd(v) C[c.Name] = v end  -- Configuration update
+			c.Changed:Connect(function(k, v)
+				if k ~= "Value" then return end
+				upd(v)
+			end)
+			upd(c.Value)
+		end
+	end)
+else
+	table.freeze(C)
+end
 
 -- Initialization
 local Parts = Instance.new("Folder")
@@ -26,7 +42,7 @@ local function XeL(m) print("[Xe]", m) end
 
 -- Version info
 local V = Instance.new("StringValue")
-V.Value = "1.1.1"
+V.Value = "1.1.2"
 V.Name = "Version"
 V.Parent = script
 

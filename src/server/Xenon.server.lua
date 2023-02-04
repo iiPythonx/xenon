@@ -39,7 +39,7 @@ local function XeL(m) print("[Xe]", m) end
 
 -- Version info
 local V = Instance.new("StringValue")
-V.Value = "1.1.2"
+V.Value = "1.1.3"
 V.Name = "Version"
 V.Parent = script
 
@@ -156,12 +156,15 @@ while task.wait(C.Delay) do
 		-- Stream parts
 		for _, pt in pairs(findPartsInRange(v1, v2)) do
 			local ps = pt.Position
-			local rp = findPartsInRange(ps, ps, lastParts[p.UserId])
-			if #rp > 0 then
-				for _, _p in pairs(rp) do _p:SetAttribute("_XN", 1) end
-				continue
-			end
 			local px, py, pz = math.floor(ps.X), math.floor(ps.Y), math.floor(ps.Z)
+			local rpobj = lastParts[p.UserId]
+			if rpobj:FindFirstChild(px) and rpobj[px]:FindFirstChild(py) and rpobj[px][py]:FindFirstChild(pz) then
+				local rp = rpobj[px][py][pz]:GetChildren()
+				if #rp > 0 then
+					for _, _p in pairs(rp) do _p:SetAttribute("_XN", 1) end
+					continue
+				end
+			end
 			local pc = pt:Clone()
 			createPartStructure(px, py, pz, lastParts[p.UserId])
 			pc:SetAttribute("_XN", 1)

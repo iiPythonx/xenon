@@ -22,10 +22,7 @@ if C.ExternalConfig then
 	CfgObj.ChildAdded:Connect(function(c)
 		if c:IsA("IntValue") or c:IsA("BoolValue") then
 			local function upd(v) C[c.Name] = v end  -- Configuration update
-			c.Changed:Connect(function(k, v)
-				if k ~= "Value" then return end
-				upd(v)
-			end)
+			c:GetPropertyChangedSignal("Value"):Connect(function() upd(c.Value) end)
 			upd(c.Value)
 		end
 	end)

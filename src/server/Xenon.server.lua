@@ -31,7 +31,7 @@ else
 end
 
 -- Initialization
-local Parts = Instance.new("Folder")
+local Parts = Instance.new("WorldModel")
 Parts.Name = "XenonParts"
 Parts.Parent = Storage
 
@@ -39,7 +39,7 @@ local function XeL(m) print("[Xe]", m) end
 
 -- Version info
 local V = Instance.new("StringValue")
-V.Value = "1.1.3"
+V.Value = "1.1.4"
 V.Name = "Version"
 V.Parent = script
 
@@ -66,32 +66,9 @@ local function registerPart(part: Instance)
 	createPartStructure(x, y, z)
 	part.Parent = Parts[x][y][z]
 end
-local function findPartsInRange(v1: Vector3, v2: Vector3, p: Instance)
-	if p == nil then p = Parts end
-	local pts = {}
-	local x, oy, oz = math.floor(v1.X), math.floor(v1.Y), math.floor(v1.Z)
-	local x1, y1, z1 = math.floor(v2.X), math.floor(v2.Y), math.floor(v2.Z)
-	while x <= x1 do
-		if not p:FindFirstChild(x) then x += 1; continue end
-		local y = oy
-		while y <= y1 do
-			if not p[x]:FindFirstChild(y) then y += 1; continue end
-			local z = oz
-			while z <= z1 do
-				if not p[x][y]:FindFirstChild(z) then z += 1; continue end
-				local t = p[x][y][z]:GetChildren()
-				for _, t1 in pairs(t) do table.insert(pts, t1) end
-				z += 1
-			end
-			y += 1
-		end
-		x += 1
-	end
-	return pts
-end
 
 -- Begin registering parts
-local Xe = game.Workspace:FindFirstChild("Xenon")
+local Xe = workspace:FindFirstChild("Xenon")
 if not Xe then return XeL("No 'Xenon' folder to stream from.") end
 for _, p in pairs(Xe:GetDescendants()) do
 	if p:IsA("BasePart") then
@@ -137,54 +114,31 @@ while task.wait(C.Delay) do
 			lastPos[p.UserId] = ps
 			local f = Instance.new("Folder")
 			f.Name = p.Name
-			f.Parent = game.Workspace.Xenon
+			f.Parent = workspace.Xenon
 			lastParts[p.UserId] = f
 		elseif (lastPos[p.UserId] - ps).magnitude < C.WalkTrigger then continue end
-		
-		-- Create range
-		local v1 = Vector3.new(
-			ps.X - C.RenderDistance,
-			ps.Y - C.RenderDistance,
-			ps.Z - C.RenderDistance
-		)
-		local v2 = Vector3.new(
-			ps.X + C.RenderDistance,
-			ps.Y + C.RenderDistance,
-			ps.Z + C.RenderDistance
-		)
-		
+	
 		-- Stream parts
-		for _, pt in pairs(findPartsInRange(v1, v2)) do
+		local cr = C.RenderDistance
+		local pn = Instance.new("Folder", workspace.Xenon)
+		pn.Name = p.Name .. "_n"
+		for _, pt in pairs(Parts:GetPartBoundsInBox(h.CFrame, Vector3.new(cr, cr, cr))) do
 			local ps = pt.Position
 			local px, py, pz = math.floor(ps.X), math.floor(ps.Y), math.floor(ps.Z)
 			local rpobj = lastParts[p.UserId]
 			if rpobj:FindFirstChild(px) and rpobj[px]:FindFirstChild(py) and rpobj[px][py]:FindFirstChild(pz) then
 				local rp = rpobj[px][py][pz]:GetChildren()
-				if #rp > 0 then
-					for _, _p in pairs(rp) do _p:SetAttribute("_XN", 1) end
-					continue
-				end
+				for _, _p in pairs(rp) do _p.Parent = pn end
 			end
 			local pc = pt:Clone()
-			createPartStructure(px, py, pz, lastParts[p.UserId])
-			pc:SetAttribute("_XN", 1)
-			pc.Parent = lastParts[p.UserId][px][py][pz]
+			createPartStructure(px, py, pz, pn)
+			pc.Parent = pn[px][py][pz]
 		end
 		table.insert(up, p.UserId)
-	end
 
-	-- Remove old parts (reuse parts)
-	for _, pl in pairs(up) do
-		for _, _p in pairs(lastParts[pl]:GetDescendants()) do
-			if not _p:IsA("BasePart") then continue end
-			if _p:GetAttribute("_XN") == 1 then _p:SetAttribute("_XN", 0)
-			else
-				if (#_p.Parent:GetChildren() - 1) == 0 then
-					_p.Parent:Destroy()  -- Remove empty folders
-					continue
-				end
-				_p:Destroy()
-			end
-		end
-	end
+		-- Remove old parts (reuse parts)
+		lastParts[p.UserId]:Destroy()
+		pn.Name = p.Name
+		lastParts[p.UserId] = pn
+	end	
 end

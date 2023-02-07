@@ -101,7 +101,6 @@ end)
 
 -- Start watching movement
 while task.wait(C.Delay) do
-	local up = {}
 	for _, p in pairs(Players:GetPlayers()) do
 		local c = p.Character
 		if c == nil then continue end

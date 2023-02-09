@@ -115,8 +115,9 @@ while task.wait(C.Delay) do
 			f.Name = p.Name
 			f.Parent = workspace.Xenon
 			lastParts[p.UserId] = f
-		elseif (lastPos[p.UserId] - ps).magnitude < C.WalkTrigger then continue end
-	
+		elseif ((lastPos[p.UserId] - ps).magnitude < C.WalkTrigger) or
+			   (c.Humanoid.MoveDirection.Magnitude == 0) then continue end
+
 		-- Stream parts
 		local cr = C.RenderDistance
 		local pn = Instance.new("Folder", workspace.Xenon)
@@ -133,7 +134,6 @@ while task.wait(C.Delay) do
 			createPartStructure(px, py, pz, pn)
 			pc.Parent = pn[px][py][pz]
 		end
-		table.insert(up, p.UserId)
 
 		-- Remove old parts (reuse parts)
 		lastParts[p.UserId]:Destroy()

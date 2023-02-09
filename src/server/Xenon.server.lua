@@ -39,7 +39,7 @@ local function XeL(m) print("[Xe]", m) end
 
 -- Version info
 local V = Instance.new("StringValue")
-V.Value = "1.1.4"
+V.Value = "1.1.5"
 V.Name = "Version"
 V.Parent = script
 
@@ -126,12 +126,13 @@ while task.wait(C.Delay) do
 			local ps = pt.Position
 			local px, py, pz = math.floor(ps.X), math.floor(ps.Y), math.floor(ps.Z)
 			local rpobj = lastParts[p.UserId]
+			createPartStructure(px, py, pz, pn)
 			if rpobj:FindFirstChild(px) and rpobj[px]:FindFirstChild(py) and rpobj[px][py]:FindFirstChild(pz) then
 				local rp = rpobj[px][py][pz]:GetChildren()
-				for _, _p in pairs(rp) do _p.Parent = pn end
+				for _, _p in pairs(rp) do _p.Parent = pn[px][py][pz] end
+				continue
 			end
 			local pc = pt:Clone()
-			createPartStructure(px, py, pz, pn)
 			pc.Parent = pn[px][py][pz]
 		end
 
